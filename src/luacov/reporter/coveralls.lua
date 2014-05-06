@@ -26,7 +26,32 @@ function CoverallsReporter:new(conf)
    end
    o._source_files   = json.util.InitArray{}
 
+   -- read coveralls specific configurations
+   local cc = conf.coveralls
+   if cc then
+      if cc.pathcorrect then
+         local pat = {}
+         -- @todo implement function as path converter?
+         for i, p in ipairs(cc.pathcorrect) do
+            assert(type(p)    == "table")
+            assert(type(p[1]) == "string")
+            assert(type(p[2]) == "string")
+            pat[i] = {p[1], p[2]}
+         end
+         o._correct_path_pat = pat
+      end
+   end
+
    return o
+end
+
+function CoverallsReporter:correct_path(path)
+   if self._correct_path_pat then
+      for _, pat in ipairs(self._correct_path_pat) do
+         path = path:gsub(pat[1], pat[2])
+      end
+   end
+   return path
 end
 
 function CoverallsReporter:on_start()
@@ -34,7 +59,7 @@ end
 
 function CoverallsReporter:on_new_file(filename)
    self._current_file = {
-      name     = filename;
+      name     = self:correct_path(filename);
       source   = {};
       coverage = json.util.InitArray{};
    }
