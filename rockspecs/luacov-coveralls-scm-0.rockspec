@@ -1,7 +1,7 @@
 package = "LuaCov-coveralls"
 version = "scm-0"
 source = {
-   url = "git://github.com/keplerproject/luacov",
+   url = "git://github.com/moteus/luacov-coveralls",
    tag = "master"
 }
 description = {
