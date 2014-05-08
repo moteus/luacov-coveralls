@@ -4,6 +4,20 @@ local coveralls = {}
 local json = require "json"
 local luacov_reporter = require "luacov.reporter"
 
+local function read_file(n)
+   local f, e = io.open(n, "r")
+   if not f then return nil, e end
+   local d, e = f:read("*all")
+   f:close()
+   return d, e
+end
+
+local function load_json(n)
+   local d, e = read_file(n)
+   if not d then return nil, e end
+   return json.decode(d)
+end
+
 local ReporterBase = luacov_reporter.ReporterBase
 
 ----------------------------------------------------------------
@@ -23,32 +37,50 @@ function CoverallsReporter:new(conf)
    if not o then return nil, err end
 
    -- read coveralls specific configurations
-   local cc = conf.coveralls
-   if cc then
-      self._debug = not not cc.debug
+   local cc = conf.coveralls or {}
+   self._debug = not not cc.debug
 
-      if cc.pathcorrect then
-         local pat = {}
-         -- @todo implement function as path converter?
-         for i, p in ipairs(cc.pathcorrect) do
-            assert(type(p)    == "table")
-            assert(type(p[1]) == "string")
-            assert(type(p[2]) == "string")
-            pat[i] = {p[1], p[2]}
-            debug_print(o, "Add correct path: `", p[1], "` => `", p[2], "`\n")
+   if cc.pathcorrect then
+      local pat = {}
+      -- @todo implement function as path converter?
+      for i, p in ipairs(cc.pathcorrect) do
+         assert(type(p)    == "table")
+         assert(type(p[1]) == "string")
+         assert(type(p[2]) == "string")
+         pat[i] = {p[1], p[2]}
+         debug_print(o, "Add correct path: `", p[1], "` => `", p[2], "`\n")
+      end
+      o._correct_path_pat = pat
+   end
+
+   local base_file
+   if cc.merge then
+      local err
+      base_file, err = load_json(cc.merge)
+      debug_print(o, "Load merge file ", tostring(cc.merge), ": ", tostring((not not base_file) or err), "\n")
+      if base_file and base_file.source_files then
+         for _, source in ipairs(base_file.source_files) do
+            debug_print(o, "  ", source.name, "\n")
          end
-         o._correct_path_pat = pat
+         debug_print(o, "--------------------\n")
+      end
+      if not base_file then
+         o:close()
+         return nil, "Can not merge with " .. cc.merge .. ". Error: " .. (err or "")
       end
    end
 
    -- @todo check repo_token (os.getenv("REPO_TOKEN"))
-   o._service_name   = 'travis-ci'
-   o._service_job_id = os.getenv("TRAVIS_JOB_ID")
-   if not o._service_job_id then
+   o._json = base_file or {}
+
+   o._json.service_name   = o._json.service_name   or 'travis-ci'
+   o._json.service_job_id = o._json.service_job_id or os.getenv("TRAVIS_JOB_ID")
+   o._json.source_files   = o._json.source_files   or json.util.InitArray{}
+
+   if not o._json.service_job_id then
       o:close()
       return nil, "You should run this only on Travis-CI."
    end
-   o._source_files   = json.util.InitArray{}
 
    return o
 end
@@ -98,15 +130,11 @@ end
 function CoverallsReporter:on_end_file(filename, hits, miss)
    local source_file = self._current_file
    source_file.source = table.concat(source_file.source, "\n")
-   table.insert(self._source_files, source_file)
+   table.insert(self._json.source_files, source_file)
 end
 
 function CoverallsReporter:on_end()
-   local msg = json.encode{
-      service_name   = self._service_name;
-      service_job_id = self._service_job_id;
-      source_files   = self._source_files;
-   }
+   local msg = json.encode(self._json)
    self:write(msg)
 end
 
