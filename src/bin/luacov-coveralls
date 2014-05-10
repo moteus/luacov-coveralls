@@ -99,7 +99,9 @@ local configuration = runner.load_config(configfile)
 
 configuration.include = configuration.include or {}
 configuration.exclude = configuration.exclude or {}
-configuration.merge   = merge or configuration.merge
+
+configuration.coveralls = configuration.coveralls or {}
+configuration.coveralls.merge = merge or configuration.coveralls.merge
 
 
 -- add elements specified on commandline to config
