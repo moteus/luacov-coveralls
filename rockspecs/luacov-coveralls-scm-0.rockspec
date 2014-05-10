@@ -21,4 +21,9 @@ build = {
    modules = {
       ['luacov.reporter.coveralls'] = "src/luacov/reporter/coveralls.lua",
    },
+   install = {
+      bin = {
+         ["luacov-coveralls"] = "src/bin/luacov-coveralls",
+      }
+   },
 }
