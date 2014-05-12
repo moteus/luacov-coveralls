@@ -10,7 +10,7 @@ local runner = require("luacov.runner")
 local reporter = require("luacov.reporter.coveralls")
 
 local patterns = {}
-local configfile = ".luacov"
+local configfile
 local merge
 
 local function show_help()
