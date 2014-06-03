@@ -4,8 +4,6 @@ local coveralls = {}
 local json = require "json"
 local luacov_reporter = require "luacov.reporter"
 
-local GitRepo = require "luacov.coveralls.GitRepo"
-
 local function read_file(n)
    local f, e = io.open(n, "r")
    if not f then return nil, e end
@@ -79,42 +77,47 @@ function CoverallsReporter:new(conf)
    o._json.service_job_id = o._json.service_job_id or os.getenv("TRAVIS_JOB_ID")
    o._json.source_files   = o._json.source_files   or json.util.InitArray{}
 
-   local repo, err = GitRepo:new(cc.root or '.')
-   if not repo then debug_print(o, "Warning! can not get git info: " .. (err or ''))
+   local ok, GitRepo = pcall(require, "luacov.coveralls.GitRepo")
+   if not ok then
+      debug_print(o, "Warning! can not load GitRepo: " .. (GitRepo or ''))
    else
-      o._json.git      = o._json.git or {}
-      o._json.git.head = o._json.git.head or {}
+      local repo, err = GitRepo:new(cc.root or '.')
+      if not repo then debug_print(o, "Warning! can not get git info: " .. (err or ''))
+      else
+         o._json.git      = o._json.git or {}
+         o._json.git.head = o._json.git.head or {}
 
-      o._json.git.head.id              = o._json.git.head.id              or repo:id()
-      o._json.git.head.author_name     = o._json.git.head.author_name     or repo:last_author_name()
-      o._json.git.head.author_email    = o._json.git.head.author_email    or repo:last_author_email()
-      o._json.git.head.committer_name  = o._json.git.head.committer_name  or repo:last_committer_name()
-      o._json.git.head.committer_email = o._json.git.head.committer_email or repo:last_committer_email()
-      o._json.git.head.message         = o._json.git.head.message         or repo:last_message()
-      o._json.git.branch               = o._json.git.branch               or repo:current_branch()
-      if not o._json.git.remotes then
-         o._json.git.remotes = json.util.InitArray{}
-         local t = repo:remotes()
-         if t then for name, url in pairs(t) do
-            table.insert(o._json.git.remotes,{name=name,url=url})
-         end end
+         o._json.git.head.id              = o._json.git.head.id              or repo:id()
+         o._json.git.head.author_name     = o._json.git.head.author_name     or repo:last_author_name()
+         o._json.git.head.author_email    = o._json.git.head.author_email    or repo:last_author_email()
+         o._json.git.head.committer_name  = o._json.git.head.committer_name  or repo:last_committer_name()
+         o._json.git.head.committer_email = o._json.git.head.committer_email or repo:last_committer_email()
+         o._json.git.head.message         = o._json.git.head.message         or repo:last_message()
+         o._json.git.branch               = o._json.git.branch               or repo:current_branch()
+         if not o._json.git.remotes then
+            o._json.git.remotes = json.util.InitArray{}
+            local t = repo:remotes()
+            if t then for name, url in pairs(t) do
+               table.insert(o._json.git.remotes,{name=name,url=url})
+            end end
+         end
+
+         
+         debug_print(o, "git path:", repo:path(), "\n")
+         debug_print(o, "git\n")
+         debug_print(o, "  head\n")
+         debug_print(o, "    id             : ", o._json.git.head.id              or "", "\n")
+         debug_print(o, "    author_name    : ", o._json.git.head.author_name     or "", "\n")
+         debug_print(o, "    author_email   : ", o._json.git.head.author_email    or "", "\n")
+         debug_print(o, "    committer_name : ", o._json.git.head.committer_name  or "", "\n")
+         debug_print(o, "    committer_email: ", o._json.git.head.committer_email or "", "\n")
+         debug_print(o, "    message        : ", o._json.git.head.message         or "", "\n")
+         debug_print(o, "  branch           : ", o._json.git.branch               or "", "\n")
+         debug_print(o, "  remotes\n")
+         for i, t in ipairs(o._json.git.remotes) do
+           debug_print(o, "    ", t.name, " ", t.url, "\n")
+         end 
       end
-
-      
-      debug_print(o, "git path:", repo:path(), "\n")
-      debug_print(o, "git\n")
-      debug_print(o, "  head\n")
-      debug_print(o, "    id             : ", o._json.git.head.id              or "", "\n")
-      debug_print(o, "    author_name    : ", o._json.git.head.author_name     or "", "\n")
-      debug_print(o, "    author_email   : ", o._json.git.head.author_email    or "", "\n")
-      debug_print(o, "    committer_name : ", o._json.git.head.committer_name  or "", "\n")
-      debug_print(o, "    committer_email: ", o._json.git.head.committer_email or "", "\n")
-      debug_print(o, "    message        : ", o._json.git.head.message         or "", "\n")
-      debug_print(o, "  branch           : ", o._json.git.branch               or "", "\n")
-      debug_print(o, "  remotes\n")
-      for i, t in ipairs(o._json.git.remotes) do
-        debug_print(o, "    ", t.name, " ", t.url, "\n")
-      end 
    end
 
    -- if not o._service_job_id then
