@@ -11,7 +11,7 @@ local reporter = require("luacov.reporter.coveralls")
 
 local patterns = {}
 local configfile
-local merge
+local merge, root
 
 local function show_help()
    print([[
@@ -87,6 +87,8 @@ while arg[i] do
          configfile = value
       elseif (key == "j") or (key == "json") then
          merge = value
+      elseif (key == "r") or (key == "root") then
+         root = value
       end
    else
       table.insert(patterns, norm_pat(arg[i]))
@@ -102,6 +104,7 @@ configuration.exclude = configuration.exclude or {}
 
 configuration.coveralls = configuration.coveralls or {}
 configuration.coveralls.merge = merge or configuration.coveralls.merge
+configuration.coveralls.root  = root or '.'
 
 
 -- add elements specified on commandline to config
