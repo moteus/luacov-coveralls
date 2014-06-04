@@ -106,7 +106,7 @@ local function upload_json_file(fname, url)
   if not (ok and data) then return nil, msg or status, -1 end
 
   local resp, err = json_decode(data)
-  if not resp then return nil, err, -1 end
+  if not resp then return nil, err .. "\n" .. data, -1 end
 
   if resp.error then return nil, resp.message, -1 end
 

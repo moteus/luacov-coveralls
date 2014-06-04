@@ -119,7 +119,7 @@ if configuration.coveralls.debug then
 end
 
 local resp, data, status = utils.upload_json_file(configuration.reportfile, "https://coveralls.io/api/v1/jobs")
-if not ok then
+if not resp then
    io.stdout:write("Error! ")
    io.stdout:write(data, "\n")
    io.stdout:write("Status: ", status)
