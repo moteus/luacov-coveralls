@@ -6,8 +6,9 @@
 
 local arg = { ... }
 
-local runner = require("luacov.runner")
+local runner   = require("luacov.runner")
 local reporter = require("luacov.reporter.coveralls")
+local utils    = require("luacov.coveralls.utils")
 
 local patterns = {}
 local configfile
@@ -106,10 +107,23 @@ configuration.coveralls = configuration.coveralls or {}
 configuration.coveralls.merge = merge or configuration.coveralls.merge
 configuration.coveralls.root  = root or '.'
 
-
 -- add elements specified on commandline to config
 for i, patt in ipairs(patterns) do
   table.insert(configuration.include, patt)
 end
 
 reporter.report()
+
+if configuration.coveralls.debug then
+   print("Uploading ...")
+end
+
+local ok, err, status = utils.upload_json_file(configuration.reportfile, "https://coveralls.io/api/v1/jobs")
+if not ok then
+  io.stderr:write(err)
+  os.exit(status)
+end
+
+if configuration.coveralls.debug then
+  print(err)
+end

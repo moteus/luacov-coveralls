@@ -1,50 +1,11 @@
 
 local coveralls = {}
 
-local function prequire(...)
-   local ok, mod = pcall(require, ...)
-   if not ok then return nil, mod end
-   return mod, ...
-end
-
-local function vrequire(...)
-   local errors = {}
-   for i, n in ipairs{...} do
-      local mod, err = prequire(n)
-      if mod then return mod, err end
-      errors[#errors + 1] = err
-   end
-   error(table.concat(errors, "\n\n"))
-end
-
-local json, json_name = vrequire("json", "cjson")
-
-local luacov_reporter = require "luacov.reporter"
-
-local function read_file(n)
-   local f, e = io.open(n, "r")
-   if not f then return nil, e end
-   local d, e = f:read("*all")
-   f:close()
-   return d, e
-end
-
-local function load_json(n)
-   local d, e = read_file(n)
-   if not d then return nil, e end
-   return json.decode(d)
-end
-
-local function json_init_array(t)
-   if json.util and json.util.InitArray then
-      return json.util.InitArray(t)
-   end
-   return t
-end
-
-local function json_encode(t)
-   return json.encode(t)
-end
+local luacov_reporter = require"luacov.reporter"
+local utils           = require"luacov.coveralls.utils"
+local ci              = require"luacov.coveralls.CiInfo"
+local GitRepo         = require"luacov.coveralls.GitRepo"
+local json            = utils.json
 
 local ReporterBase = luacov_reporter.ReporterBase
 
@@ -95,7 +56,6 @@ function CoverallsReporter:new(conf)
    local cc = conf.coveralls or {}
    self._debug = not not cc.debug
 
-   local ci      = require"luacov.coveralls.CiInfo"
    local ci_name = ci.name()
    if ci_name then debug_print(o, "CI detected: ", ci_name, "\n")
    else debug_print(o, "CI not detected\n") end
@@ -136,9 +96,9 @@ function CoverallsReporter:new(conf)
    o._json.service_name   = o._json.service_name   or ci_name
    o._json.repo_token     = o._json.repo_token     or ci.token()
    o._json.service_job_id = o._json.service_job_id or ci.job_id()
-   o._json.source_files   = o._json.source_files   or json_init_array{}
+   o._json.source_files   = o._json.source_files   or json.init_array{}
 
-   local GitRepo = prequire"luacov.coveralls.GitRepo"
+
    if not GitRepo then
       debug_print(o, "Warning! can not load GitRepo: " .. (GitRepo or ''))
    else
@@ -158,7 +118,7 @@ function CoverallsReporter:new(conf)
          o._json.git.head.message         = o._json.git.head.message         or repo:last_message()
          o._json.git.branch               = o._json.git.branch               or ci.branch() or repo:current_branch()
          if not o._json.git.remotes then
-            o._json.git.remotes = json_init_array{}
+            o._json.git.remotes = json.init_array{}
             local t = repo:remotes()
             if t then for name, url in pairs(t) do
                table.insert(o._json.git.remotes,{name=name,url=url})
@@ -190,7 +150,7 @@ function CoverallsReporter:on_new_file(filename)
    self._current_file = {
       name     = self:correct_path(filename);
       source   = {};
-      coverage = json_init_array{};
+      coverage = json.init_array{};
    }
 end
 
@@ -220,7 +180,7 @@ end
 
 function CoverallsReporter:on_end()
    trace_json(self)
-   local msg = json_encode(self._json)
+   local msg = json.encode(self._json)
    self:write(msg)
 end
 
