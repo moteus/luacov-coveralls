@@ -46,6 +46,33 @@ local function debug_print(o, ...)
    io.stdout:write(...)
 end
 
+local function trace_json(o)
+   debug_print(o, "--------------------\n")
+   debug_print(o, "service_name   : ", o._json.service_name    or "", "\n")
+   debug_print(o, "repo_token     : ", o._json.repo_token      or "", "\n")
+   debug_print(o, "service_job_id : ", o._json.service_job_id  or "", "\n")
+   debug_print(o, "source_files   : ", #o._json.source_files   or "", "\n")
+   for _, source in ipairs(o._json.source_files) do
+      debug_print(o, "  ", source.name, "\n")
+   end
+   if o._json.git then
+      debug_print(o, "git\n")
+      debug_print(o, "  head\n")
+      debug_print(o, "    id             : ", o._json.git.head.id              or "", "\n")
+      debug_print(o, "    author_name    : ", o._json.git.head.author_name     or "", "\n")
+      debug_print(o, "    author_email   : ", o._json.git.head.author_email    or "", "\n")
+      debug_print(o, "    committer_name : ", o._json.git.head.committer_name  or "", "\n")
+      debug_print(o, "    committer_email: ", o._json.git.head.committer_email or "", "\n")
+      debug_print(o, "    message        : ", o._json.git.head.message         or "", "\n")
+      debug_print(o, "  branch           : ", o._json.git.branch               or "", "\n")
+      debug_print(o, "  remotes\n")
+      for i, t in ipairs(o._json.git.remotes) do
+        debug_print(o, "    ", t.name, " ", t.url, "\n")
+      end 
+   end
+   debug_print(o, "--------------------\n")
+end
+
 function CoverallsReporter:new(conf)
    local o, err = ReporterBase.new(self, conf)
    if not o then return nil, err end
@@ -104,6 +131,8 @@ function CoverallsReporter:new(conf)
       local repo, err = GitRepo:new(cc.root or '.')
       if not repo then debug_print(o, "Warning! can not get git info: " .. (err or ''))
       else
+         debug_print(o, "git path:", repo:path(), "\n")
+
          o._json.git      = o._json.git or {}
          o._json.git.head = o._json.git.head or {}
 
@@ -121,22 +150,6 @@ function CoverallsReporter:new(conf)
                table.insert(o._json.git.remotes,{name=name,url=url})
             end end
          end
-
-         
-         debug_print(o, "git path:", repo:path(), "\n")
-         debug_print(o, "git\n")
-         debug_print(o, "  head\n")
-         debug_print(o, "    id             : ", o._json.git.head.id              or "", "\n")
-         debug_print(o, "    author_name    : ", o._json.git.head.author_name     or "", "\n")
-         debug_print(o, "    author_email   : ", o._json.git.head.author_email    or "", "\n")
-         debug_print(o, "    committer_name : ", o._json.git.head.committer_name  or "", "\n")
-         debug_print(o, "    committer_email: ", o._json.git.head.committer_email or "", "\n")
-         debug_print(o, "    message        : ", o._json.git.head.message         or "", "\n")
-         debug_print(o, "  branch           : ", o._json.git.branch               or "", "\n")
-         debug_print(o, "  remotes\n")
-         for i, t in ipairs(o._json.git.remotes) do
-           debug_print(o, "    ", t.name, " ", t.url, "\n")
-         end 
       end
    end
 
@@ -192,6 +205,7 @@ function CoverallsReporter:on_end_file(filename, hits, miss)
 end
 
 function CoverallsReporter:on_end()
+   trace_json(self)
    local msg = json_encode(self._json)
    self:write(msg)
 end
