@@ -103,25 +103,14 @@ local function upload_json_file(fname, url)
   local data = read_file(tmp)
   path.remove(tmp)
 
-  print("\n")
-  print(">>> MESSAGE <<<")
-  print(msg)
-  print("\n>>> OUTPUT <<<")
-  print(data)
-
-  if not ok then return nil, msg or status, status end
+  if not (ok and data) then return nil, msg or status, status end
 
   local resp, err = json_decode(data)
-
   if not resp then return nil, err, -1 end
-
-  print("\n>>> RESPONSE <<<")
-  for k, v in pairs(resp)do print(k,v) end
-  print("\n--------------")
 
   if resp.error then return nil, resp.message, -1 end
 
-  return true, data, 0
+  return resp, data
 end
 
 return {
