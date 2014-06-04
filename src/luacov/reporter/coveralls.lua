@@ -1,14 +1,25 @@
 
 local coveralls = {}
 
-local json = require "json"
-local luacov_reporter = require "luacov.reporter"
-
 local function prequire(...)
    local ok, mod = pcall(require, ...)
    if not ok then return nil, mod end
    return mod, ...
 end
+
+local function vrequire(...)
+   local errors = {}
+   for i, n in ipairs{...} do
+      local mod, err = prequire(n)
+      if mod then return mod, err end
+      errors[#errors + 1] = err
+   end
+   error(table.concat(errors, "\n\n"))
+end
+
+local json, json_name = vrequire("json", "cjson")
+
+local luacov_reporter = require "luacov.reporter"
 
 local function read_file(n)
    local f, e = io.open(n, "r")
@@ -25,7 +36,10 @@ local function load_json(n)
 end
 
 local function json_init_array(t)
-   return json.util.InitArray(t)
+   if json.util and json.util.InitArray then
+      return json.util.InitArray(t)
+   end
+   return t
 end
 
 local function json_encode(t)
