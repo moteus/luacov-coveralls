@@ -19,6 +19,14 @@ local path = require "path"
 
 local json, json_name = vrequire("json", "cjson.safe")
 
+local function read_file(n)
+  local f, e = io.open(n, "r")
+  if not f then return nil, e end
+  local d, e = f:read("*all")
+  f:close()
+  return d, e
+end
+
 local function json_init_array(t)
    if json.util and json.util.InitArray then
       return json.util.InitArray(t)
@@ -40,14 +48,6 @@ local function json_load_file(n)
    local d, e = read_file(n)
    if not d then return nil, e end
    return json_decode(d)
-end
-
-local function read_file(n)
-  local f, e = io.open(n, "r")
-  if not f then return nil, e end
-  local d, e = f:read("*all")
-  f:close()
-  return d, e
 end
 
 -----------------------------------------------------------

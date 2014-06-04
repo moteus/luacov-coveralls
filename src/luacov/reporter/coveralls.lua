@@ -76,7 +76,7 @@ function CoverallsReporter:new(conf)
    local base_file
    if cc.merge then
       local err
-      base_file, err = load_json(cc.merge)
+      base_file, err = json.load_file(cc.merge)
       debug_print(o, "Load merge file ", tostring(cc.merge), ": ", tostring((not not base_file) or err), "\n")
       if base_file and base_file.source_files then
          for _, source in ipairs(base_file.source_files) do
