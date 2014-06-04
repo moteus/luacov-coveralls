@@ -4,6 +4,12 @@ local coveralls = {}
 local json = require "json"
 local luacov_reporter = require "luacov.reporter"
 
+local function prequire(...)
+   local ok, mod = pcall(require, ...)
+   if not ok then return nil, mod end
+   return mod, ...
+end
+
 local function read_file(n)
    local f, e = io.open(n, "r")
    if not f then return nil, e end
@@ -16,6 +22,14 @@ local function load_json(n)
    local d, e = read_file(n)
    if not d then return nil, e end
    return json.decode(d)
+end
+
+local function json_init_array(t)
+   return json.util.InitArray(t)
+end
+
+local function json_encode(t)
+   return json.encode(t)
 end
 
 local ReporterBase = luacov_reporter.ReporterBase
@@ -39,6 +53,11 @@ function CoverallsReporter:new(conf)
    -- read coveralls specific configurations
    local cc = conf.coveralls or {}
    self._debug = not not cc.debug
+
+   local ci      = require"luacov.coveralls.CiInfo"
+   local ci_name = ci.name()
+   if ci_name then debug_print(o, "CI detected: ", ci_name, "\n")
+   else debug_print(o, "CI not detected\n") end
 
    if cc.pathcorrect then
       local pat = {}
@@ -73,12 +92,13 @@ function CoverallsReporter:new(conf)
    -- @todo check repo_token (os.getenv("REPO_TOKEN"))
    o._json = base_file or {}
 
-   o._json.service_name   = o._json.service_name   or 'travis-ci'
-   o._json.service_job_id = o._json.service_job_id or os.getenv("TRAVIS_JOB_ID")
-   o._json.source_files   = o._json.source_files   or json.util.InitArray{}
+   o._json.service_name   = o._json.service_name   or ci_name
+   o._json.repo_token     = o._json.repo_token     or ci.token()
+   o._json.service_job_id = o._json.service_job_id or ci.job_id()
+   o._json.source_files   = o._json.source_files   or json_init_array{}
 
-   local ok, GitRepo = pcall(require, "luacov.coveralls.GitRepo")
-   if not ok then
+   local GitRepo = prequire"luacov.coveralls.GitRepo"
+   if not GitRepo then
       debug_print(o, "Warning! can not load GitRepo: " .. (GitRepo or ''))
    else
       local repo, err = GitRepo:new(cc.root or '.')
@@ -93,9 +113,9 @@ function CoverallsReporter:new(conf)
          o._json.git.head.committer_name  = o._json.git.head.committer_name  or repo:last_committer_name()
          o._json.git.head.committer_email = o._json.git.head.committer_email or repo:last_committer_email()
          o._json.git.head.message         = o._json.git.head.message         or repo:last_message()
-         o._json.git.branch               = o._json.git.branch               or repo:current_branch()
+         o._json.git.branch               = o._json.git.branch               or ci.branch() or repo:current_branch()
          if not o._json.git.remotes then
-            o._json.git.remotes = json.util.InitArray{}
+            o._json.git.remotes = json_init_array{}
             local t = repo:remotes()
             if t then for name, url in pairs(t) do
                table.insert(o._json.git.remotes,{name=name,url=url})
@@ -120,11 +140,6 @@ function CoverallsReporter:new(conf)
       end
    end
 
-   -- if not o._service_job_id then
-      -- o:close()
-      -- return nil, "You should run this only on Travis-CI."
-   -- end
-
    return o
 end
 
@@ -148,7 +163,7 @@ function CoverallsReporter:on_new_file(filename)
    self._current_file = {
       name     = self:correct_path(filename);
       source   = {};
-      coverage = json.util.InitArray{};
+      coverage = json_init_array{};
    }
 end
 
@@ -177,7 +192,7 @@ function CoverallsReporter:on_end_file(filename, hits, miss)
 end
 
 function CoverallsReporter:on_end()
-   local msg = json.encode(self._json)
+   local msg = json_encode(self._json)
    self:write(msg)
 end
 
