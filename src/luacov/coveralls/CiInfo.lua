@@ -23,7 +23,7 @@ local CI_CONFIG = {
     token  = "COVERALLS_REPO_TOKEN";
   };
   circleci = {
-    branch = "CIRCLE_BUILD_NUM";
+    branch = "CIRCLE_BRANCH";
     job_id = "CIRCLE_BUILD_NUM";
     token  = "COVERALLS_REPO_TOKEN";
   };
