@@ -103,7 +103,7 @@ local function upload_json_file(fname, url)
   local data = read_file(tmp)
   path.remove(tmp)
 
-  if not (ok and data) then return nil, msg or status, status end
+  if not (ok and data) then return nil, msg or status, -1 end
 
   local resp, err = json_decode(data)
   if not resp then return nil, err, -1 end
