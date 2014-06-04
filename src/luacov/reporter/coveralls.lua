@@ -63,7 +63,7 @@ end
 local function trace_json(o)
    debug_print(o, "--------------------\n")
    debug_print(o, "service_name   : ", o._json.service_name    or "", "\n")
-   debug_print(o, "repo_token     : ", o._json.repo_token      or "", "\n")
+   debug_print(o, "repo_token     : ", o._json.repo_token and "<DETECTED>" or "<NOT DETECTED>", "\n")
    debug_print(o, "service_job_id : ", o._json.service_job_id  or "", "\n")
    debug_print(o, "source_files   : ", #o._json.source_files   or "", "\n")
    for _, source in ipairs(o._json.source_files) do
