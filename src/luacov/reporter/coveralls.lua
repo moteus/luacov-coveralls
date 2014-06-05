@@ -151,29 +151,34 @@ function CoverallsReporter:on_new_file(filename)
       name     = self:correct_path(filename);
       source   = {};
       coverage = json.init_array{};
+      count    = 0;
    }
 end
 
 function CoverallsReporter:on_empty_line(filename, lineno, line)
-   local source_file = self._current_file
-   table.insert(source_file.coverage, EMPTY)
-   table.insert(source_file.source, line)
+   local i = self._current_file.count + 1
+   self._current_file.count       = i
+   self._current_file.coverage[i] = EMPTY
+   self._current_file.source[i]   = line
 end
 
 function CoverallsReporter:on_mis_line(filename, lineno, line)
-   local source_file = self._current_file
-   table.insert(source_file.coverage, ZERO)
-   table.insert(source_file.source, line)
+   local i = self._current_file.count + 1
+   self._current_file.count       = i
+   self._current_file.coverage[i] = ZERO
+   self._current_file.source[i]   = line
 end
 
 function CoverallsReporter:on_hit_line(filename, lineno, line, hits)
-   local source_file = self._current_file
-   table.insert(source_file.coverage, hits)
-   table.insert(source_file.source, line)
+   local i = self._current_file.count + 1
+   self._current_file.count       = i
+   self._current_file.coverage[i] = hits
+   self._current_file.source[i]   = line
 end
 
 function CoverallsReporter:on_end_file(filename, hits, miss)
    local source_file = self._current_file
+   source_file.count = nil
    source_file.source = table.concat(source_file.source, "\n")
    table.insert(self._json.source_files, source_file)
 end

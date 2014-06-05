@@ -17,7 +17,7 @@ end
 
 local path = require "path"
 
-local json, json_name = vrequire("json", "cjson.safe")
+local json, json_name = vrequire("json", "cjson.safe", "dkjson")
 
 local function read_file(n)
   local f, e = io.open(n, "r")
@@ -42,6 +42,11 @@ local function json_decode(t)
   local ok, r1, r2 = pcall(json.decode, t)
   if ok then return r1, r2 end
   return nil, r1
+end
+
+local function json_null()
+  if json.null then return json.null end
+  return json.decode('null')
 end
 
 local function json_load_file(n)
@@ -130,5 +135,6 @@ return {
     decode     = json_decode,
     init_array = json_init_array,
     load_file  = json_load_file,
+    null       = json_null(),
   };
 }
