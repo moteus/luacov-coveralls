@@ -96,17 +96,25 @@ end
 end
 -----------------------------------------------------------
 
-local function upload_json_file(fname, url)
+local function curl_json_upload(fname, url)
   local path_name, base_name = path.splitpath(fname)
   local tmp = path.tmpname()
   local ok, status, msg = exec(path_name, "curl", '--output %s --form "json_file=@%s;type=application/json" %s', tmp, base_name, url)
   local data = read_file(tmp)
   path.remove(tmp)
 
-  if not (ok and data) then return nil, msg or status, -1 end
+  if not (ok and data) then return nil, msg or status end
+
+  return true, data
+end
+
+local function upload_json_file(fname, url)
+  local ok, data = curl_json_upload(fname, url)
+
+  if not ok then return nil, data end
 
   local resp, err = json_decode(data)
-  if not resp then return nil, err .. "\n" .. data, -1 end
+  if not resp then return nil, "JSON decode error:\n" .. err .. "\n" .. data end
 
   if resp.error then return nil, resp.message, -1 end
 
