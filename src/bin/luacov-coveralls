@@ -10,37 +10,30 @@ local runner   = require("luacov.runner")
 local reporter = require("luacov.reporter.coveralls")
 local utils    = require("luacov.coveralls.utils")
 
-local patterns = {}
-local configfile
-local merge, root
-
 local function show_help()
    print([[
-luacov - coverage analyzer for Lua scripts
-
 Usage:
-   luacov-coveralls [-c=configfile] [-j=merge json file] [pattern...]
+   luacov-coveralls [-h] [-v] [-c FILE] [-j FILE] [-e PAT] [-i PAT]
+                    [-r DIR] [-t TOKEN] [-o FILE] [--dryrun]
 
-   Launch your Lua programs with -lluacov to perform accounting.
-   
-   Launch this script to generate a report from collected stats.
-   
-   By default it reports on every Lua file encountered running your
-   script. To filter filenames, pass one or more patterns in the
-   command line.
-
-   For details of the config file, see the luacov.defaults module.
-   (Copy it and modify it and you'll have a config file.)
-
-Example:
-   luacov foo/bar
-   
-   This will report only on modules in the foo/bar subtree.
-
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         print verbose messages
+  -c FILE, --config FILE
+                        configuration file
+  -o FILE, --output FILE
+                        output file
+  -j FILE, --json FILE  merge report with this json report
+  -r DIR, --root DIR    set the root directory
+  -e PAT, --exclude PAT set exclude pattern
+  -i PAT, --include PAT set include pattern
+  -t TOKEN, --repo-token TOKEN
+                        set the repo_token of this project
+   --dryrun             run coveralls without uploading report
 ]])
 end
 
-local function read_key(arg, i)
+local function read_key_(arg, i)
    if arg[i]:sub(1,1) ~= '-' then return nil, nil, i end
    if not arg[i]:sub(2,2) then return "-", nil, i+1 end
 
@@ -66,6 +59,20 @@ local function read_key(arg, i)
    return arg[i]:sub(3), arg[i+1], i+2
 end
 
+local function read_key(arg, i)
+   local key, value, n = read_key_(arg, i)
+   if n == (i + 1) then return key, value, n end
+   assert(n == (i + 2))
+
+   if not value then return key, "true", n - 1 end
+
+   if value:sub(1, 1) == '-' then
+      return key, "true", n - 1
+   end
+
+   return key, value, n
+end
+
 local function norm_pat(p)
   return((p
     :gsub("/", ".")
@@ -75,6 +82,7 @@ local function norm_pat(p)
 end
 
 -- only report on files specified on the command line
+local args = {}
 
 local i = 1
 while arg[i] do
@@ -85,51 +93,75 @@ while arg[i] do
          show_help()
          os.exit(0)
       elseif (key == "c") or (key == "config") then
-         configfile = value
+         args.config = value
       elseif (key == "j") or (key == "json") then
-         merge = value
+         args.json = value
+      elseif (key == "o") or (key == "output") then
+         args.output = value
       elseif (key == "r") or (key == "root") then
-         root = value
+         args.root = value
+      elseif (key == "v") or (key == "verbose") then
+         args.verbose = value
+      elseif (key == "e") or (key == "exclude") then
+         args.exclude = args.exclude or {}
+         args.exclude[#args.exclude + 1] = norm_pat(value)
+      elseif (key == "i") or (key == "include") then
+         args.include = args.include or {}
+         args.include[#args.include + 1] = norm_pat(value)
+      elseif (key == "t") or (key == "repo-token") then
+         args.token = value
+      elseif (key == "dryrun") then
+         args.dryrun = value
+      else
+         print("Invalid switch: " .. key)
+         show_help()
+         os.exit(1)
       end
-   else
-      table.insert(patterns, norm_pat(arg[i]))
-      i = i +1
    end
 end
 
 -- will load configfile specified, or defaults otherwise
-local configuration = runner.load_config(configfile)
+local configuration = runner.load_config(args.config)
 
-configuration.include = configuration.include or {}
-configuration.exclude = configuration.exclude or {}
+configuration.include    = configuration.include or {}
+configuration.exclude    = configuration.exclude or {}
+configuration.coveralls  = configuration.coveralls or {}
 
-configuration.coveralls = configuration.coveralls or {}
-configuration.coveralls.merge = merge or configuration.coveralls.merge
-configuration.coveralls.root  = root or '.'
+configuration.reportfile           = args.output  or configuration.reportfile
+configuration.coveralls.merge      = args.json    or configuration.coveralls.merge
+configuration.coveralls.root       = args.root    or '.'
+configuration.coveralls.repo_token = args.token   or configuration.coveralls.repo_token
+configuration.coveralls.debug      = args.verbose or configuration.coveralls.debug
 
--- add elements specified on commandline to config
-for i, patt in ipairs(patterns) do
+for i, patt in ipairs(args.include or {}) do
   table.insert(configuration.include, patt)
+end
+
+for i, patt in ipairs(args.exclude or {}) do
+  table.insert(configuration.exclude, patt)
 end
 
 reporter.report()
 
-if configuration.coveralls.debug then
-   print("Uploading ...")
-end
+if not args.dryrun then
 
-local resp, data, status = utils.upload_json_file(configuration.reportfile, "https://coveralls.io/api/v1/jobs")
-if not resp then
-   io.stdout:write("Error! ")
-   io.stdout:write(data, "\n")
-   io.stdout:write("Status: ", status)
-   os.exit(status)
-end
-
-if configuration.coveralls.debug then
-   if resp.message then
-      print(resp.message)
+   if configuration.coveralls.debug then
+      print("Uploading ...")
    end
-   print(data)
-   print("--------------------")
+
+   local resp, data, status = utils.upload_json_file(configuration.reportfile, "https://coveralls.io/api/v1/jobs")
+   if not resp then
+      io.stdout:write("Error! ")
+      io.stdout:write(data, "\n")
+      io.stdout:write("Status: ", status)
+      os.exit(status)
+   end
+
+   print("Uploaded " .. (resp.message or "") .. " to " .. (resp.url or ""))
+
+   if configuration.coveralls.debug then
+      print("Raw data:", data)
+      print("--------------------")
+   end
+
 end

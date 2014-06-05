@@ -90,14 +90,12 @@ function CoverallsReporter:new(conf)
       end
    end
 
-   -- @todo check repo_token (os.getenv("REPO_TOKEN"))
    o._json = base_file or {}
 
    o._json.service_name   = o._json.service_name   or ci_name
-   o._json.repo_token     = o._json.repo_token     or ci.token()
+   o._json.repo_token     = o._json.repo_token     or cc.repo_token or ci.token()
    o._json.service_job_id = o._json.service_job_id or ci.job_id()
    o._json.source_files   = o._json.source_files   or json.init_array{}
-
 
    if not GitRepo then
       debug_print(o, "Warning! can not load GitRepo: " .. (GitRepo or ''))
