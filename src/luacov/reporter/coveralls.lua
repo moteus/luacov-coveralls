@@ -150,6 +150,8 @@ function CoverallsReporter:on_new_file(filename)
       source   = {};
       coverage = json.init_array{};
       count    = 0;
+      hits     = 0;
+      miss     = 0;
    }
 end
 
@@ -163,6 +165,7 @@ end
 function CoverallsReporter:on_mis_line(filename, lineno, line)
    local i = self._current_file.count + 1
    self._current_file.count       = i
+   self._current_file.miss        = self._current_file.miss + 1
    self._current_file.coverage[i] = ZERO
    self._current_file.source[i]   = line
 end
@@ -170,13 +173,25 @@ end
 function CoverallsReporter:on_hit_line(filename, lineno, line, hits)
    local i = self._current_file.count + 1
    self._current_file.count       = i
+   self._current_file.hits        = self._current_file.hits + 1
    self._current_file.coverage[i] = hits
    self._current_file.source[i]   = line
 end
 
 function CoverallsReporter:on_end_file(filename, hits, miss)
    local source_file = self._current_file
+
+   local total = self._current_file.hits + self._current_file.miss
+   local cover = 0
+   if total ~= 0 then cover = 100 * (self._current_file.hits / total) end
+
+   print( string.format("File '%s'", source_file.name) )
+   print( string.format("Lines executed:%.2f%% of %d\n", cover, total) )
+
    source_file.count = nil
+   source_file.hits  = nil
+   source_file.miss  = nil
+
    source_file.source = table.concat(source_file.source, "\n")
    table.insert(self._json.source_files, source_file)
 end
