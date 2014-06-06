@@ -1,7 +1,7 @@
 luacov-coveralls
 ================
 
-[![Licence](http://img.shields.io/badge/licence-MIT-green.png)](LICENSE)
+[![Licence](http://img.shields.io/badge/Licence-MIT-brightgreen.svg)](LICENSE)
 
 LuaCov reporter for [coveralls.io](https://coveralls.io) service.
 
