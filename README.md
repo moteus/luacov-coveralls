@@ -25,6 +25,26 @@ luarocks install luacov-coveralls --server=http://rocks.moonscript.org/dev
  * Run tests with enabled [LuaCov](https://github.com/keplerproject/luacov)
  * Run `luacov-coveralls`
 
+###Command line arguments
+```
+luacov-coveralls [-h] [-v] [-c FILE] [-j FILE] [-e PAT] [-i PAT]
+                 [-r DIR] [-t TOKEN] [-o FILE] [--dryrun]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         print verbose messages
+  -c FILE, --config FILE
+                        configuration file
+  -o FILE, --output FILE
+                        output file
+  -j FILE, --json FILE  merge report with this json report
+  -r DIR, --root DIR    set the root directory
+  -e PAT, --exclude PAT set exclude pattern
+  -i PAT, --include PAT set include pattern
+  -t TOKEN, --repo-token TOKEN
+                        set the repo_token of this project
+  --dryrun              run coveralls without uploading report
+```
 ###Basic usage `.travis.yml`
 
 ```
