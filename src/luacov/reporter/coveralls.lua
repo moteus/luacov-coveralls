@@ -13,7 +13,7 @@ local ReporterBase = luacov_reporter.ReporterBase
 local CoverallsReporter = setmetatable({}, ReporterBase) do
 CoverallsReporter.__index = CoverallsReporter
 
-local EMPTY = json.decode('null')
+local EMPTY = json.null
 local ZERO  = 0
 
 local function debug_print(o, ...)
