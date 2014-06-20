@@ -1,17 +1,6 @@
 #!/usr/bin/env lua
--- commandline;
--- luacov [-c configfile] filename filename ...
--- the -c option will load the specifed configfile
--- the filenames are the ones that need to be reported on
 
-local arg = { ... }
-
-local runner   = require("luacov.runner")
-local reporter = require("luacov.reporter.coveralls")
-local utils    = require("luacov.coveralls.utils")
-
-local function show_help()
-   print([[
+local function show_help() print([[
 Usage:
    luacov-coveralls [-h] [-v] [-c FILE] [-j FILE] [-e PAT] [-i PAT]
                     [-r DIR] [-t TOKEN] [-o FILE] [--dryrun]
@@ -29,9 +18,15 @@ optional arguments:
   -i PAT, --include PAT set include pattern
   -t TOKEN, --repo-token TOKEN
                         set the repo_token of this project
-   --dryrun             run coveralls without uploading report
-]])
-end
+  --dryrun              run coveralls without uploading report
+]]) end
+
+local arg = { ... }
+
+local runner   = require("luacov.runner")
+local reporter = require("luacov.reporter.coveralls")
+local utils    = require("luacov.coveralls.utils")
+
 
 local function read_key_(arg, i)
    if arg[i]:sub(1,1) ~= '-' then return nil, nil, i end
@@ -81,8 +76,11 @@ local function norm_pat(p)
   )
 end
 
--- only report on files specified on the command line
-local args = {}
+-- parse command line arguments
+local args = {
+   include = {};
+   exclude = {};
+}
 
 local i = 1
 while arg[i] do
@@ -103,10 +101,8 @@ while arg[i] do
       elseif (key == "v") or (key == "verbose") then
          args.verbose = value
       elseif (key == "e") or (key == "exclude") then
-         args.exclude = args.exclude or {}
          args.exclude[#args.exclude + 1] = norm_pat(value)
       elseif (key == "i") or (key == "include") then
-         args.include = args.include or {}
          args.include[#args.include + 1] = norm_pat(value)
       elseif (key == "t") or (key == "repo-token") then
          args.token = value
@@ -123,8 +119,8 @@ end
 -- will load configfile specified, or defaults otherwise
 local configuration = runner.load_config(args.config)
 
-configuration.include    = configuration.include or {}
-configuration.exclude    = configuration.exclude or {}
+configuration.include    = configuration.include   or {}
+configuration.exclude    = configuration.exclude   or {}
 configuration.coveralls  = configuration.coveralls or {}
 
 configuration.reportfile           = args.output  or configuration.reportfile
@@ -133,11 +129,11 @@ configuration.coveralls.root       = args.root    or '.'
 configuration.coveralls.repo_token = args.token   or configuration.coveralls.repo_token
 configuration.coveralls.debug      = args.verbose or configuration.coveralls.debug
 
-for i, patt in ipairs(args.include or {}) do
+for i, patt in ipairs(args.include) do
   table.insert(configuration.include, patt)
 end
 
-for i, patt in ipairs(args.exclude or {}) do
+for i, patt in ipairs(args.exclude) do
   table.insert(configuration.exclude, patt)
 end
 
