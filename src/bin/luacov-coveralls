@@ -147,10 +147,8 @@ if not args.dryrun then
 
    local resp, data, status = utils.upload_json_file(configuration.reportfile, "https://coveralls.io/api/v1/jobs")
    if not resp then
-      io.stdout:write("Error! ")
-      io.stdout:write(data, "\n")
-      io.stdout:write("Status: ", status)
-      os.exit(status)
+      io.stdout:write("Upload error: ", tostring(data), "\n")
+      os.exit(status or -1)
    end
 
    print("Uploaded " .. (resp.message or "") .. " to " .. (resp.url or ""))
