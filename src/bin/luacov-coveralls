@@ -80,6 +80,7 @@ end
 local args = {
    include = {};
    exclude = {};
+   upload_count = 3;
 }
 
 local i = 1
@@ -140,22 +141,35 @@ end
 reporter.report()
 
 if not args.dryrun then
+   local function upload()
+      local resp, data, status = utils.upload_json_file(configuration.reportfile, "https://coveralls.io/api/v1/jobs")
+      if not resp then
+         io.stdout:write("Upload error: ", tostring(data), "\n")
+         return nil, data, status or -1
+      end
+
+      print("Uploaded " .. (resp.message or "") .. " to " .. (resp.url or ""))
+      return true, data
+   end
 
    if configuration.coveralls.debug then
       print("Uploading ...")
    end
 
-   local resp, data, status = utils.upload_json_file(configuration.reportfile, "https://coveralls.io/api/v1/jobs")
-   if not resp then
-      io.stdout:write("Upload error: ", tostring(data), "\n")
-      os.exit(status or -1)
+   local ok, data, status
+   for i = 1, args.upload_count do
+      ok, data, status = upload()
+      if configuration.coveralls.debug then
+         print("Raw data:", data)
+         print("--------------------")
+      end
+      if ok then break end
    end
-
-   print("Uploaded " .. (resp.message or "") .. " to " .. (resp.url or ""))
 
    if configuration.coveralls.debug then
-      print("Raw data:", data)
-      print("--------------------")
+      print("Uploading done")
    end
+
+   if not ok then os.exit(status) end
 
 end
