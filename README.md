@@ -13,7 +13,7 @@ This module tested only on Travis-CI.
 luarocks install luacov-coveralls
 ```
 
-Note. For now I do not release so use this command to install
+To install current master use this command
 
 ```
 luarocks install luacov-coveralls --server=http://rocks.moonscript.org/dev
