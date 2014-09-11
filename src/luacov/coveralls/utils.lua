@@ -101,7 +101,7 @@ end
 end
 -----------------------------------------------------------
 
-local function curl_json_upload(fname, url)
+local function curl_json_upload_app(fname, url)
   local path_name, base_name = path.splitpath(fname)
   local tmp = path.tmpname()
   local ok, status, msg = exec(path_name, "curl", '--output %s --form "json_file=@%s;type=application/json" %s', tmp, base_name, url)
@@ -112,6 +112,39 @@ local function curl_json_upload(fname, url)
 
   return true, data
 end
+
+local function curl_json_upload_lib(fname, url)
+  local curl, curl_utils = prequire "cURL", prequire "cURL.utils"
+  if not (curl and curl_utils) then return curl_json_upload_app(fname, url) end
+
+  local easy
+  local ok, ret = pcall(function()
+    local cainfo, capath = curl_utils.find_ca_bundle()
+    easy = curl.easy{
+      url      = url,
+      cainfo   = cainfo,
+      capath   = capath,
+      httppost = curl.form():add_file("json_file", fname, "application/json", "json_file"),
+    }
+
+    if curl.version_info("features").SSL then
+      easy:setopt_ssl_verifypeer(true)
+      easy:setopt_ssl_verifyhost(2)
+    end
+
+    local res = {}
+    easy
+      :setopt_writefunction(table.insert, res)
+      :perform()
+    return table.concat(res)
+  end)
+
+  if easy then easy:close() end
+  if not ok then return nil, tostring(ret) end
+  return true, ret
+end
+
+local curl_json_upload = curl_json_upload_lib
 
 local function upload_json_file(fname, url)
   local ok, data = curl_json_upload(fname, url)
