@@ -4,8 +4,10 @@ local coveralls = {}
 local luacov_reporter = require"luacov.reporter"
 local utils           = require"luacov.coveralls.utils"
 local ci              = require"luacov.coveralls.CiInfo"
-local GitRepo         = require"luacov.coveralls.GitRepo"
+local CiRepo          = require"luacov.coveralls.CiRepo"
+
 local json            = utils.json
+local unix_path       = require"path".new("/")
 
 local ReporterBase = luacov_reporter.ReporterBase
 
@@ -56,9 +58,32 @@ function CoverallsReporter:new(conf)
    local cc = conf.coveralls or {}
    self._debug = not not cc.debug
 
-   local ci_name = ci.name()
-   if ci_name then debug_print(o, "CI detected: ", ci_name, "\n")
-   else debug_print(o, "CI not detected\n") end
+   local repo, err = CiRepo:new(cc.root or '.')
+   assert(repo, "LuaCov-covealls internal error :" .. tostring(err))
+
+   debug_print(o, "CI: \n")
+   debug_print(o, "  name            : ", ci.name            () or "<UNKNOWN>", "\n")
+   debug_print(o, "  branch          : ", ci.branch          () or "<UNKNOWN>", "\n")
+   debug_print(o, "  job_id          : ", ci.job_id          () or "<UNKNOWN>", "\n")
+   debug_print(o, "  commit_id       : ", ci.commit_id       () or "<UNKNOWN>", "\n")
+   debug_print(o, "  author_name     : ", ci.author_name     () or "<UNKNOWN>", "\n")
+   debug_print(o, "  author_email    : ", ci.author_email    () or "<UNKNOWN>", "\n")
+   debug_print(o, "  committer_name  : ", ci.committer_name  () or "<UNKNOWN>", "\n")
+   debug_print(o, "  committer_email : ", ci.committer_email () or "<UNKNOWN>", "\n")
+   debug_print(o, "  message         : ", ci.message         () or "<UNKNOWN>", "\n")
+   debug_print(o, "  token           : ", ci.token() and "<DETECTED>" or "<NOT DETECTED>", "\n")
+
+   debug_print(o, "Repository: \n")
+   debug_print(o, "  type            : ", repo:type                 (),                "\n")
+   debug_print(o, "  path            : ", repo:path                 () or "<UNKNOWN>", "\n")
+   debug_print(o, "  version         : ", repo:version              () or "<UNKNOWN>", "\n")
+   debug_print(o, "  id              : ", repo:id                   () or "<UNKNOWN>", "\n")
+   debug_print(o, "  author_name     : ", repo:last_author_name     () or "<UNKNOWN>", "\n")
+   debug_print(o, "  author_email    : ", repo:last_author_email    () or "<UNKNOWN>", "\n")
+   debug_print(o, "  committer_name  : ", repo:last_committer_name  () or "<UNKNOWN>", "\n")
+   debug_print(o, "  committer_email : ", repo:last_committer_email () or "<UNKNOWN>", "\n")
+   debug_print(o, "  message         : ", repo:last_message         () or "<UNKNOWN>", "\n")
+   debug_print(o, "  current_branch  : ", repo:current_branch       () or "<UNKNOWN>", "\n")
 
    if cc.pathcorrect then
       local pat = {}
@@ -92,36 +117,28 @@ function CoverallsReporter:new(conf)
 
    o._json = base_file or {}
 
-   o._json.service_name   = o._json.service_name   or ci_name
+   o._json.service_name   = o._json.service_name   or ci.name()
    o._json.repo_token     = o._json.repo_token     or cc.repo_token or ci.token()
    o._json.service_job_id = o._json.service_job_id or ci.job_id()
    o._json.source_files   = o._json.source_files   or json.init_array{}
 
-   if not GitRepo then
-      debug_print(o, "Warning! can not load GitRepo: " .. (GitRepo or ''))
-   else
-      local repo, err = GitRepo:new(cc.root or '.')
-      if not repo then debug_print(o, "Warning! can not get git info: " .. (err or ''))
-      else
-         debug_print(o, "git path:", repo:path(), "\n")
+   if repo:type() == 'git' then
+      o._json.git      = o._json.git or {}
+      o._json.git.head = o._json.git.head or {}
 
-         o._json.git      = o._json.git or {}
-         o._json.git.head = o._json.git.head or {}
-
-         o._json.git.head.id              = o._json.git.head.id              or repo:id()
-         o._json.git.head.author_name     = o._json.git.head.author_name     or repo:last_author_name()
-         o._json.git.head.author_email    = o._json.git.head.author_email    or repo:last_author_email()
-         o._json.git.head.committer_name  = o._json.git.head.committer_name  or repo:last_committer_name()
-         o._json.git.head.committer_email = o._json.git.head.committer_email or repo:last_committer_email()
-         o._json.git.head.message         = o._json.git.head.message         or repo:last_message()
-         o._json.git.branch               = o._json.git.branch               or ci.branch() or repo:current_branch()
-         if not o._json.git.remotes then
-            o._json.git.remotes = json.init_array{}
-            local t = repo:remotes()
-            if t then for name, url in pairs(t) do
-               table.insert(o._json.git.remotes,{name=name,url=url})
-            end end
-         end
+      o._json.git.head.id              = o._json.git.head.id              or repo:id()
+      o._json.git.head.author_name     = o._json.git.head.author_name     or repo:last_author_name()
+      o._json.git.head.author_email    = o._json.git.head.author_email    or repo:last_author_email()
+      o._json.git.head.committer_name  = o._json.git.head.committer_name  or repo:last_committer_name()
+      o._json.git.head.committer_email = o._json.git.head.committer_email or repo:last_committer_email()
+      o._json.git.head.message         = o._json.git.head.message         or repo:last_message()
+      o._json.git.branch               = o._json.git.branch               or ci.branch() or repo:current_branch()
+      if not o._json.git.remotes then
+         o._json.git.remotes = json.init_array{}
+         local t = repo:remotes()
+         if t then for name, url in pairs(t) do
+            table.insert(o._json.git.remotes,{name=name,url=url})
+         end end
       end
    end
 
@@ -136,6 +153,11 @@ function CoverallsReporter:correct_path(path)
          path = path:gsub(pat[1], pat[2])
       end
    end
+
+   -- @todo check if we have path not relevant to repo
+   -- if is abs path then this is error path.
+
+   path = unix_path:normolize(path)
 
    debug_print(self, path, "\n")
    return path

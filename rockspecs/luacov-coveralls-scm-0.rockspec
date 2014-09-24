@@ -26,6 +26,7 @@ build = {
       ['luacov.reporter.coveralls'] = "src/luacov/reporter/coveralls.lua",
       ['luacov.coveralls.GitRepo' ] = "src/luacov/coveralls/GitRepo.lua",
       ['luacov.coveralls.CiInfo'  ] = "src/luacov/coveralls/CiInfo.lua",
+      ['luacov.coveralls.CiRepo'  ] = "src/luacov/coveralls/GitRepo.lua",
       ['luacov.coveralls.utils'   ] = "src/luacov/coveralls/utils.lua",
    },
    install = {
