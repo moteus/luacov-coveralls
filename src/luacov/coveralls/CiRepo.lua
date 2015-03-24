@@ -7,12 +7,8 @@ local function try_any_repo(repo_path)
   local repo, err = GitRepo:new(repo_path) 
   if repo then return repo, "git" end
 
-  -- @todo warning message about failure
-  io.stderr:write("LUACOV: ", tostring(repo_path), ": Git error detect fail:", tostring(err), "\n")
-
-  local repo, err = ApvRepo:new(repo_path)
+  repo, err = ApvRepo:new(repo_path)
   if repo then return repo, err end
-  io.stderr:write("LUACOV: ", tostring(repo_path), ": Appveyor error detect fail:", tostring(err), "\n")
 
   local function dummy() end
   return setmetatable({}, {__index = function() return dummy end}), "unknown"

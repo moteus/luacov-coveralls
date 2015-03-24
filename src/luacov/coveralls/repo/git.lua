@@ -56,15 +56,12 @@ GitRepoInfo.__index = GitRepoInfo
 function GitRepoInfo:new(repo_path)
   repo_path = path.fullpath(repo_path)
 
-  io.stderr:write("LUACOV: ", "try as git repo:", tostring(repo_path), "\n")
-
   if not path.isdir(repo_path) then
     return nil, 'git rep does not exists'
   end
 
   local ver, err = git_version()
   if not ver then
-    io.stderr:write("LUACOV: ", "git error:", tostring(err), "\n")
     return nil, err
   end
 
