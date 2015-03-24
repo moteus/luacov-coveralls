@@ -89,6 +89,7 @@ local function ci_committer_email() return ENV[cfg().committer_email] end
 local function ci_message        () return ENV[cfg().message        ] end
 
 return {
+  ENV             = ENV;
   name            = ci_name;
   branch          = ci_branch;
   job_id          = ci_job_id;

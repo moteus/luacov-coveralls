@@ -1,4 +1,5 @@
-local GitRepo = require"luacov.coveralls.GitRepo"
+local GitRepo = require"luacov.coveralls.repo.git"
+local ApvRepo = require"luacov.coveralls.repo.appveyor"
 local ci      = require"luacov.coveralls.CiInfo"
 
 local function try_any_repo(repo_path)
@@ -8,6 +9,10 @@ local function try_any_repo(repo_path)
 
   -- @todo warning message about failure
   io.stderr:write("LUACOV: ", tostring(repo_path), ": Git error detect fail:", tostring(err), "\n")
+
+  local repo, err = ApvRepo:new(repo_path)
+  if repo then return repo, err end
+  io.stderr:write("LUACOV: ", tostring(repo_path), ": Appveyor error detect fail:", tostring(err), "\n")
 
   local function dummy() end
   return setmetatable({}, {__index = function() return dummy end}), "unknown"
