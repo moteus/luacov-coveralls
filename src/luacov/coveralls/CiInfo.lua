@@ -47,10 +47,22 @@ local CI_CONFIG = {
     committer_email = NULL;
     message         = NULL;
   };
+
+  appveyor = {
+    branch          = "APPVEYOR_REPO_BRANCH";
+    job_id          = "APPVEYOR_BUILD_ID";
+    token           = "COVERALLS_REPO_TOKEN";
+    commit_id       = "APPVEYOR_REPO_COMMIT";
+    author_name     = "APPVEYOR_REPO_COMMIT_AUTHOR";
+    author_email    = "APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL";
+    committer_name  = NULL;
+    committer_email = NULL;
+    message         = "APPVEYOR_REPO_COMMIT_MESSAGE";
+  };
 }
 
 local function is_ci()
-  return ENV.CI == "true"
+  return ENV.CI and ENV.CI:lower() == "true"
 end
 
 local function ci_name()
@@ -58,6 +70,7 @@ local function ci_name()
   if ENV.TRAVIS   == "true"     then return "travis-ci" end
   if ENV.CI_NAME  == "codeship" then return "codeship"  end
   if ENV.CIRCLECI == "true"     then return "circleci"  end
+  if ENV.APPVEYOR and ENV.APPVEYOR:lower() == "true" then return "appveyor"  end
 end
 
 local function cfg()
