@@ -16,6 +16,8 @@ optional arguments:
   -r DIR, --root DIR    set the root directory
   -e PAT, --exclude PAT set exclude pattern
   -i PAT, --include PAT set include pattern
+  -s NAME, --service-name NAME
+                        set `service_name` field explicitly
   -t TOKEN, --repo-token TOKEN
                         set the repo_token of this project
   --dryrun              run coveralls without uploading report
@@ -105,6 +107,8 @@ while arg[i] do
          args.exclude[#args.exclude + 1] = norm_pat(value)
       elseif (key == "i") or (key == "include") then
          args.include[#args.include + 1] = norm_pat(value)
+      elseif (key == "s") or (key == "service-name") then
+         args.service = value
       elseif (key == "t") or (key == "repo-token") then
          args.token = value
       elseif (key == "dryrun") then
@@ -124,11 +128,12 @@ configuration.include    = configuration.include   or {}
 configuration.exclude    = configuration.exclude   or {}
 configuration.coveralls  = configuration.coveralls or {}
 
-configuration.reportfile           = args.output  or configuration.reportfile
-configuration.coveralls.merge      = args.json    or configuration.coveralls.merge
-configuration.coveralls.root       = args.root    or '.'
-configuration.coveralls.repo_token = args.token   or configuration.coveralls.repo_token
-configuration.coveralls.debug      = args.verbose or configuration.coveralls.debug
+configuration.reportfile             = args.output  or configuration.reportfile
+configuration.coveralls.merge        = args.json    or configuration.coveralls.merge
+configuration.coveralls.root         = args.root    or '.'
+configuration.coveralls.service_name = args.service or configuration.coveralls.service_name
+configuration.coveralls.repo_token   = args.token   or configuration.coveralls.repo_token
+configuration.coveralls.debug        = args.verbose or configuration.coveralls.debug
 
 for i, patt in ipairs(args.include) do
   table.insert(configuration.include, patt)

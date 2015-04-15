@@ -67,10 +67,11 @@ end
 
 local function ci_name()
   if not is_ci() then return end
-  if ENV.TRAVIS   == "true"     then return "travis-ci" end
-  if ENV.CI_NAME  == "codeship" then return "codeship"  end
-  if ENV.CIRCLECI == "true"     then return "circleci"  end
-  if ENV.APPVEYOR and ENV.APPVEYOR:lower() == "true" then return "appveyor"  end
+
+  if (ENV.TRAVIS   or ''):lower() == "true"     then return "travis-ci" end
+  if (ENV.CI_NAME  or ''):lower() == "codeship" then return "codeship"  end
+  if (ENV.CIRCLECI or ''):lower() == "true"     then return "circleci"  end
+  if (ENV.APPVEYOR or ''):lower() == "true"     then return "appveyor"  end
 end
 
 local function cfg()

@@ -41,6 +41,8 @@ optional arguments:
   -r DIR, --root DIR    set the root directory
   -e PAT, --exclude PAT set exclude pattern
   -i PAT, --include PAT set include pattern
+  -s NAME, --service-name NAME
+                        set `service_name` field explicitly
   -t TOKEN, --repo-token TOKEN
                         set the repo_token of this project
   --dryrun              run coveralls without uploading report

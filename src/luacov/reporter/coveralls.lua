@@ -117,8 +117,8 @@ function CoverallsReporter:new(conf)
 
    o._json = base_file or {}
 
-   o._json.service_name   = o._json.service_name   or ci.name()
-   o._json.repo_token     = o._json.repo_token     or cc.repo_token or ci.token()
+   o._json.service_name   = cc.service_name        or ci.name()  or o._json.service_name
+   o._json.repo_token     = cc.repo_token          or ci.token() or o._json.repo_token
    o._json.service_job_id = o._json.service_job_id or ci.job_id()
    o._json.source_files   = o._json.source_files   or json.init_array{}
 
