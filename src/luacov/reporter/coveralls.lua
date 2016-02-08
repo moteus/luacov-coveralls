@@ -268,7 +268,9 @@ end
 
 function CoverallsReporter:on_end()
    for _, source_file in ipairs(self._json.source_files) do
-      source_file.source = table.concat(source_file.source, "\n")
+      if type(source_file.source) == 'table' then
+         source_file.source = table.concat(source_file.source, "\n")
+      end
    end
 
    trace_json(self)
