@@ -13,6 +13,7 @@ optional arguments:
   -o FILE, --output FILE
                         output file
   -j FILE, --json FILE  merge report with this json report
+  -m, --merge           merge statistics for files with same name
   -r DIR, --root DIR    set the root directory
   -e PAT, --exclude PAT set exclude pattern
   -i PAT, --include PAT set include pattern
@@ -97,6 +98,8 @@ while arg[i] do
          args.config = value
       elseif (key == "j") or (key == "json") then
          args.json = value
+      elseif (key == "m") or (key == "merge") then
+         args.merge = value
       elseif (key == "o") or (key == "output") then
          args.output = value
       elseif (key == "r") or (key == "root") then
@@ -129,7 +132,8 @@ configuration.exclude    = configuration.exclude   or {}
 configuration.coveralls  = configuration.coveralls or {}
 
 configuration.reportfile             = args.output  or configuration.reportfile
-configuration.coveralls.merge        = args.json    or configuration.coveralls.merge
+configuration.coveralls.merge        = args.merge   or configuration.coveralls.merge
+configuration.coveralls.json         = args.json    or configuration.coveralls.json
 configuration.coveralls.root         = args.root    or '.'
 configuration.coveralls.service_name = args.service or configuration.coveralls.service_name
 configuration.coveralls.repo_token   = args.token   or configuration.coveralls.repo_token

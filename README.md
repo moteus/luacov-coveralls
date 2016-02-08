@@ -38,6 +38,7 @@ optional arguments:
   -o FILE, --output FILE
                         output file
   -j FILE, --json FILE  merge report with this json report
+  -m, --merge           merge statistics for files with same name
   -r DIR, --root DIR    set the root directory
   -e PAT, --exclude PAT set exclude pattern
   -i PAT, --include PAT set include pattern
