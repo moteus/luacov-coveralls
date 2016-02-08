@@ -235,7 +235,6 @@ end
 function CoverallsReporter:on_hit_line(filename, lineno, line, hits)
    local i = self._current_file.count + 1
    local cov = tonumber(get_cov(self, i, line))
-   print(filename, lineno, i, cov, (cov or 0) + hits)
 
    self._current_file.count       = i
    self._current_file.hits        = self._current_file.hits + 1
