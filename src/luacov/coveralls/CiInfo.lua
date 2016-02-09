@@ -50,7 +50,7 @@ local CI_CONFIG = {
 
   appveyor = {
     branch          = "APPVEYOR_REPO_BRANCH";
-    job_id          = "APPVEYOR_BUILD_ID";
+    job_id          = "APPVEYOR_JOB_ID";
     token           = "COVERALLS_REPO_TOKEN";
     commit_id       = "APPVEYOR_REPO_COMMIT";
     author_name     = "APPVEYOR_REPO_COMMIT_AUTHOR";
