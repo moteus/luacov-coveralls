@@ -27,6 +27,7 @@ local function trace_json(o)
    debug_print(o, "--------------------\n")
    debug_print(o, "service_name   : ", o._json.service_name    or "", "\n")
    debug_print(o, "repo_token     : ", o._json.repo_token and "<DETECTED>" or "<NOT DETECTED>", "\n")
+   debug_print(o, "service_number : ", o._json.service_number  or "", "\n")
    debug_print(o, "service_job_id : ", o._json.service_job_id  or "", "\n")
    debug_print(o, "source_files   : ", #o._json.source_files   or "", "\n")
    for _, source in ipairs(o._json.source_files) do
@@ -67,6 +68,7 @@ function CoverallsReporter:new(conf)
    debug_print(o, "CI: \n")
    debug_print(o, "  name            : ", ci.name            () or "<UNKNOWN>", "\n")
    debug_print(o, "  branch          : ", ci.branch          () or "<UNKNOWN>", "\n")
+   debug_print(o, "  service_number  : ", ci.service_number  () or "<UNKNOWN>", "\n")
    debug_print(o, "  job_id          : ", ci.job_id          () or "<UNKNOWN>", "\n")
    debug_print(o, "  commit_id       : ", ci.commit_id       () or "<UNKNOWN>", "\n")
    debug_print(o, "  author_name     : ", ci.author_name     () or "<UNKNOWN>", "\n")
@@ -122,6 +124,7 @@ function CoverallsReporter:new(conf)
 
    o._json.service_name   = cc.service_name        or ci.name()  or o._json.service_name
    o._json.repo_token     = cc.repo_token          or ci.token() or o._json.repo_token
+   o._json.service_number = o._json.service_number or ci.service_number()
    o._json.service_job_id = o._json.service_job_id or ci.job_id()
    o._json.source_files   = o._json.source_files   or json.init_array{}
 
