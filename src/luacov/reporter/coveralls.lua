@@ -210,6 +210,15 @@ local function get_cov(self, i, line)
 
    local exists_line = self._current_file.source[i]
    if line ~= exists_line then
+      local pcov
+      if cov == EMPTY then pcov = '<EMPTY>'
+      elseif cov == ZERO then pcov = '<ZERO>'
+      else pcov = tostring(cov) end
+
+      debug_print(self, "\nLine ", tostring(i), "(", pcov, ")\n")
+      debug_print(self, "- ", tostring(exists_line), "\n")
+      debug_print(self, "+ ", tostring(line), "\n")
+
       io.write("ERROR: try merge different files as ", tostring(self.name), "\n")
    end
 
