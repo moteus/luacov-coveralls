@@ -14,7 +14,8 @@ description = {
 dependencies = {
    "lua >= 5.1",
    -- "luajson",
-   "lua-cjson",
+   -- "lua-cjson",
+   "dkjson",
    "luacov > 0.5",
    "luafilesystem",
    "lua-path",
