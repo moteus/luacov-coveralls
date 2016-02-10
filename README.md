@@ -5,7 +5,9 @@ luacov-coveralls
 
 LuaCov reporter for [coveralls.io](https://coveralls.io) service.
 
-This module tested only on Travis-CI.
+Currently support 
+  * [Travis CI](https://travis-ci.org)
+  * [AppVeyor](https://appveyor.com)
 
 ##Install
 
