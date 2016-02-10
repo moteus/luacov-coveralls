@@ -25,6 +25,19 @@ local CI_CONFIG = {
     message         = NULL;
   };
 
+  appveyor = {
+    branch          = "APPVEYOR_REPO_BRANCH";
+    service_number  = "APPVEYOR_BUILD_NUMBER";
+    job_id          = "APPVEYOR_JOB_ID";
+    token           = "COVERALLS_REPO_TOKEN";
+    commit_id       = "APPVEYOR_REPO_COMMIT";
+    author_name     = "APPVEYOR_REPO_COMMIT_AUTHOR";
+    author_email    = "APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL";
+    committer_name  = NULL;
+    committer_email = NULL;
+    message         = "APPVEYOR_REPO_COMMIT_MESSAGE";
+  };
+
   codeship = {
     branch          = "CI_BRANCH";
     service_number  = NULL;
@@ -51,18 +64,19 @@ local CI_CONFIG = {
     message         = NULL;
   };
 
-  appveyor = {
-    branch          = "APPVEYOR_REPO_BRANCH";
-    service_number  = "APPVEYOR_BUILD_NUMBER";
-    job_id          = "APPVEYOR_JOB_ID";
+  drone = {
+    branch          = "DRONE_BRANCH";
+    service_number  = NULL;
+    job_id          = "DRONE_BUILD_NUMBER";
     token           = "COVERALLS_REPO_TOKEN";
-    commit_id       = "APPVEYOR_REPO_COMMIT";
-    author_name     = "APPVEYOR_REPO_COMMIT_AUTHOR";
-    author_email    = "APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL";
+    commit_id       = "DRONE_COMMIT";
+    author_name     = NULL;
+    author_email    = NULL;
     committer_name  = NULL;
     committer_email = NULL;
-    message         = "APPVEYOR_REPO_COMMIT_MESSAGE";
+    message         = NULL;
   };
+
 }
 
 local function is_ci()
@@ -76,6 +90,7 @@ local function ci_name()
   if (ENV.CI_NAME  or ''):lower() == "codeship" then return "codeship"  end
   if (ENV.CIRCLECI or ''):lower() == "true"     then return "circleci"  end
   if (ENV.APPVEYOR or ''):lower() == "true"     then return "appveyor"  end
+  if (ENV.DRONE    or ''):lower() == "true"     then return "drone"     end
 end
 
 local function cfg()

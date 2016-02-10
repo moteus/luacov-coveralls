@@ -9,6 +9,12 @@ Currently support
   * [Travis CI](https://travis-ci.org)
   * [AppVeyor](https://appveyor.com)
 
+Also `luacov-coveralls` has code which support some other CI but I never test them.
+If you can test it please do that and send PR.
+  * [codeship](https://codeship.com)
+  * [circleci](https://circleci.com)
+  * [drone.io](http://drone.io)
+
 ##Install
 
 ```
