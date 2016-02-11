@@ -128,6 +128,23 @@ function CoverallsReporter:new(conf)
    o._json.service_job_id = o._json.service_job_id or ci.job_id()
    o._json.source_files   = o._json.source_files   or json.init_array{}
 
+   if cc.build_number then
+      assert(tonumber(cc.build_number))
+      local sign = string.sub(cc.build_number, 1, 1)
+      if sign == '+' or sign == '-' then
+         if tonumber(o._json.service_number) then
+            local v = tonumber(o._json.service_number) + tonumber(cc.build_number)
+            debug_print(o, "change service_number from ", o._json.service_number, " to ", tostring(v), "\n")
+            o._json.service_number = tostring(v)
+         else
+            io.write("WARNING! can not change service_number from ", o._json.service_number, "\n")
+         end
+      else
+         debug_print(o, "set service_number to ", tostring(cc.build_number), "\n")
+         o._json.service_number = cc.build_number
+      end
+   end
+
    if repo:type() == 'git' then
       o._json.git      = o._json.git or {}
       o._json.git.head = o._json.git.head or {}
