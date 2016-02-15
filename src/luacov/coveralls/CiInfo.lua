@@ -15,6 +15,7 @@ local CI_CONFIG = {
   ["travis-ci"] = {
     branch          = "TRAVIS_BRANCH";
     service_number  = NULL;
+    pull_request    = NULL;
     job_id          = "TRAVIS_JOB_ID";
     token           = "COVERALLS_REPO_TOKEN";
     commit_id       = "TRAVIS_COMMIT";
@@ -28,6 +29,7 @@ local CI_CONFIG = {
   appveyor = {
     branch          = "APPVEYOR_REPO_BRANCH";
     service_number  = "APPVEYOR_BUILD_NUMBER";
+    pull_request    = "APPVEYOR_PULL_REQUEST_NUMBER";
     job_id          = "APPVEYOR_JOB_ID";
     token           = "COVERALLS_REPO_TOKEN";
     commit_id       = "APPVEYOR_REPO_COMMIT";
@@ -41,6 +43,7 @@ local CI_CONFIG = {
   codeship = {
     branch          = "CI_BRANCH";
     service_number  = NULL;
+    pull_request    = NULL;
     job_id          = "CI_BUILD_NUMBER";
     token           = "COVERALLS_REPO_TOKEN";
     commit_id       = "CI_COMMIT_ID";
@@ -54,6 +57,7 @@ local CI_CONFIG = {
   circleci = {
     branch          = "CIRCLE_BRANCH";
     service_number  = NULL;
+    pull_request    = "CI_PULL_REQUEST";
     job_id          = "CIRCLE_BUILD_NUM";
     token           = "COVERALLS_REPO_TOKEN";
     commit_id       = NULL;
@@ -67,6 +71,7 @@ local CI_CONFIG = {
   drone = {
     branch          = "DRONE_BRANCH";
     service_number  = NULL;
+    pull_request    = NULL;
     job_id          = "DRONE_BUILD_NUMBER";
     token           = "COVERALLS_REPO_TOKEN";
     commit_id       = "DRONE_COMMIT";
@@ -101,6 +106,7 @@ end
 local function ci_branch         () return ENV[cfg().branch         ] end
 local function ci_job_id         () return ENV[cfg().job_id         ] end
 local function ci_service_number () return ENV[cfg().service_number ] end
+local function ci_pull_request   () return ENV[cfg().pull_request   ] end
 local function ci_token          () return ENV[cfg().token          ] end
 local function ci_commit_id      () return ENV[cfg().commit_id      ] end
 local function ci_author_name    () return ENV[cfg().author_name    ] end
@@ -114,6 +120,7 @@ return {
   name            = ci_name;
   branch          = ci_branch;
   service_number  = ci_service_number;
+  pull_request    = ci_pull_request;
   job_id          = ci_job_id;
   token           = ci_token;
   commit_id       = ci_commit_id;
