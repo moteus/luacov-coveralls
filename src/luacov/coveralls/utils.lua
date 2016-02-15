@@ -38,10 +38,20 @@ local function json_encode(t)
    return json.encode(t)
 end
 
-local function json_decode(t)
-  local ok, r1, r2 = pcall(json.decode, t)
-  if ok then return r1, r2 end
-  return nil, r1
+local json_decode
+if json_name == 'dkjson' then
+  assert(nil ~= json.null)
+  json_decode = function (t)
+    local ok, r1, r2 = pcall(json.decode, t, nil, json.null)
+    if ok then return r1, r2 end
+    return nil, r1
+  end
+else
+  json_decode = function (t)
+    local ok, r1, r2 = pcall(json.decode, t)
+    if ok then return r1, r2 end
+    return nil, r1
+  end
 end
 
 local function json_null()
