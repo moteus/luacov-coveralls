@@ -132,6 +132,10 @@ function CoverallsReporter:new(conf)
    o._json.service_pull_request = o._json.service_pull_request or ci.pull_request()
 
    if cc.build_number then
+      io.write("*****************************************************","\n")
+      io.write("WARNING! change build number is experimental feature", "\n")
+      io.write("and may be changed/excluded in future version!",       "\n")
+      io.write("*****************************************************","\n")
       assert(tonumber(cc.build_number))
       local sign = string.sub(cc.build_number, 1, 1)
       if sign == '+' or sign == '-' then

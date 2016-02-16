@@ -52,10 +52,15 @@ optional arguments:
   -i PAT, --include PAT set include pattern
   -s NAME, --service-name NAME
                         set `service_name` field explicitly
+  -b [+-]VALUE, --build-number [+-]VALUE
+                        set `service_name` field explicitly
   -t TOKEN, --repo-token TOKEN
                         set the repo_token of this project
   --dryrun              run coveralls without uploading report
 ```
+
+**Note!** `--build-number` option is experimental.
+
 ###Basic usage `.travis.yml`
 
 ```
