@@ -20,7 +20,7 @@ optional arguments:
   -s NAME, --service-name NAME
                         set `service_name` field explicitly
   -b [+-]VALUE, --build-number [+-]VALUE
-                        set `service_name` field explicitly
+                        set/change `service_number` field explicitly
   -t TOKEN, --repo-token TOKEN
                         set the repo_token of this project
   --dryrun              run coveralls without uploading report
