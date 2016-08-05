@@ -65,13 +65,13 @@ optional arguments:
 
 ```
 before_install:
-  - sudo luarocks install luacov-coveralls
+  - luarocks install --local luacov-coveralls
 
 script:
-  - lua -lluacov test.lua
+  - LUA_PATH="?;?.lua;$HOME/.luarocks/share/lua/5.1/?.lua" lua -lluacov test.lua
 
 after_success:
-  - luacov-coveralls
+  - $HOME/.luarocks/bin/luacov-coveralls
 ```
 
 ###Test Lua module written on Lua and C using [cpp-coveralls](https://github.com/eddyxu/cpp-coveralls)
