@@ -113,7 +113,7 @@ while arg[i] do
          args.include[#args.include + 1] = norm_pat(value)
       elseif (key == "s") or (key == "service-name") then
          args.service = value
-      elseif (key == "b") or (key == "build_number") then
+      elseif (key == "b") or (key == "build-number") then
          args.build_number = value
       elseif (key == "t") or (key == "repo-token") then
          args.token = value
