@@ -101,7 +101,7 @@ exec = function(cwd, cmd, ...)
   local data = read_file(tmpfile)
   path.remove(tmpfile)
 
-  if LUA_VERSION < LUA_52 then
+  if res2 == nil then -- with Lua 5.1, os.execute returns only one value
     return res1==0, res1, data
   end
 
