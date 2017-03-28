@@ -15,7 +15,7 @@ If you can test it please do that and send PR.
   * [circleci](https://circleci.com)
   * [drone.io](http://drone.io)
 
-##Install
+## Install
 
 ```
 luarocks install luacov-coveralls
@@ -28,12 +28,12 @@ luarocks install luacov-coveralls --server=http://rocks.moonscript.org/dev
 ```
 
 
-##Usage
+## Usage
 
  * Run tests with enabled [LuaCov](https://github.com/keplerproject/luacov)
  * Run `luacov-coveralls`
 
-###Command line arguments
+### Command line arguments
 ```
 luacov-coveralls [-h] [-v] [-c FILE] [-j FILE] [-e PAT] [-i PAT]
                  [-r DIR] [-t TOKEN] [-o FILE] [--dryrun]
@@ -61,7 +61,7 @@ optional arguments:
 
 **Note!** `--build-number` option is experimental.
 
-###Basic usage `.travis.yml`
+### Basic usage `.travis.yml`
 
 ```
 before_install:
@@ -74,7 +74,7 @@ after_success:
   - luacov-coveralls
 ```
 
-###Test Lua module written on Lua and C using [cpp-coveralls](https://github.com/eddyxu/cpp-coveralls)
+### Test Lua module written on Lua and C using [cpp-coveralls](https://github.com/eddyxu/cpp-coveralls)
 ```
 before_install:
   - sudo pip install cpp-coveralls
