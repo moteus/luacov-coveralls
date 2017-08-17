@@ -176,7 +176,7 @@ function CoverallsReporter:new(conf)
 end
 
 function CoverallsReporter:correct_path(path)
-   debug_print(self, "correct path: ", path, "=>")
+   local before = path
 
    if self._correct_path_pat then
       for _, pat in ipairs(self._correct_path_pat) do
@@ -189,7 +189,10 @@ function CoverallsReporter:correct_path(path)
 
    path = unix_path:normolize(path)
 
-   debug_print(self, path, "\n")
+   if before ~= path then
+      debug_print(self, "correct path: ", before, "=>", path, "\n")
+   end
+
    return path
 end
 
