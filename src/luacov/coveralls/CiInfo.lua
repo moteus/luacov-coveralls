@@ -82,6 +82,20 @@ local CI_CONFIG = {
     message         = NULL;
   };
 
+  gitlab = {
+    branch          = "CI_COMMIT_REF_NAME";
+    service_number  = NULL;
+    pull_request    = NULL;
+    job_id          = "CI_JOB_ID";
+    token           = "COVERALLS_REPO_TOKEN";
+    commit_id       = "CI_COMMIT_SHA";
+    author_name     = NULL;
+    author_email    = NULL;
+    committer_name  = NULL;
+    committer_email = NULL;
+    message         = "CI_COMMIT_TITLE";
+  };
+
 }
 
 local function is_ci()
@@ -91,11 +105,12 @@ end
 local function ci_name()
   if not is_ci() then return end
 
-  if (ENV.TRAVIS   or ''):lower() == "true"     then return "travis-ci" end
-  if (ENV.CI_NAME  or ''):lower() == "codeship" then return "codeship"  end
-  if (ENV.CIRCLECI or ''):lower() == "true"     then return "circleci"  end
-  if (ENV.APPVEYOR or ''):lower() == "true"     then return "appveyor"  end
-  if (ENV.DRONE    or ''):lower() == "true"     then return "drone"     end
+  if (ENV.TRAVIS    or ''):lower() == "true"     then return "travis-ci" end
+  if (ENV.CI_NAME   or ''):lower() == "codeship" then return "codeship"  end
+  if (ENV.CIRCLECI  or ''):lower() == "true"     then return "circleci"  end
+  if (ENV.APPVEYOR  or ''):lower() == "true"     then return "appveyor"  end
+  if (ENV.DRONE     or ''):lower() == "true"     then return "drone"     end
+  if (ENV.GITLAB_CI or ''):lower() == "true"     then return "gitlab"    end
 end
 
 local function cfg()
