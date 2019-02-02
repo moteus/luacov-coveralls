@@ -100,7 +100,7 @@ after_script: docker-compose down
 
 ```
 
-> .travis.yml
+> docker-compose.yml
 
 ```yml
 version: '2.1'
