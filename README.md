@@ -74,6 +74,71 @@ after_success:
   - luacov-coveralls
 ```
 
+### Advanced usage `.travis.yml`
+
+If you're using a containerized version of `luacov-coveralls` you must repass all the required environment variables, here's a simple example:
+
+> .travis.yml
+
+```
+language: lua
+
+services:
+  - docker
+dist: trusty
+
+env:
+  COMPOSE_VERSION: 18.06
+
+install: docker-compose build test
+
+script: docker-compose run --rm test
+
+after_success: docker-compose run --rm coverage
+
+after_script: docker-compose down
+
+```
+
+> .travis.yml
+
+```yml
+version: '2.1'
+
+services:
+  test:
+    command: busted -c
+    environment:
+      - TRAVIS=true
+      - CI=true
+      - COVERALLS_REPO_TOKEN=${COVERALLS_REPO_TOKEN}
+      - TRAVIS_JOB_ID=${TRAVIS_JOB_ID}
+      - TRAVIS_BRANCH=${TRAVIS_BRANCH}
+      - TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ".:/lua/"
+    working_dir: "/lua"
+
+  coverage:
+    command: luacov-coveralls -v
+    environment:
+      - TRAVIS=true
+      - CI=true
+      - COVERALLS_REPO_TOKEN=${COVERALLS_REPO_TOKEN}
+      - TRAVIS_JOB_ID=${TRAVIS_JOB_ID}
+      - TRAVIS_BRANCH=${TRAVIS_BRANCH}
+      - TRAVIS_REPO_SLUG=${TRAVIS_REPO_SLUG}
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    volumes:
+      - ".:/lua/"
+    working_dir: "/lua"
+```
+
 ### Test Lua module written on Lua and C using [cpp-coveralls](https://github.com/eddyxu/cpp-coveralls)
 ```
 before_install:
