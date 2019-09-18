@@ -9,6 +9,7 @@ Currently support
   * [Travis CI](https://travis-ci.org)
   * [AppVeyor](https://appveyor.com)
   * [GitLab](https://gitlab.com) (or self-hosted)
+  * [GitHub Actions](https://github.com/features/actions)
 
 Also `luacov-coveralls` has code which support some other CI but I never test them.
 If you can test it please do that and send PR.
