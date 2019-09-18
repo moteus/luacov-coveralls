@@ -84,8 +84,8 @@ local CI_CONFIG = {
 
   gitlab = {
     branch          = "CI_COMMIT_REF_NAME";
-    service_number  = NULL;
-    pull_request    = NULL;
+    service_number  = "CI_PIPELINE_ID";
+    pull_request    = "CI_MERGE_REQUEST_ID";
     job_id          = "CI_JOB_ID";
     token           = "COVERALLS_REPO_TOKEN";
     commit_id       = "CI_COMMIT_SHA";
