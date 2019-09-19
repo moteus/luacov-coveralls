@@ -96,10 +96,25 @@ local CI_CONFIG = {
     message         = "CI_COMMIT_TITLE";
   };
 
+  actions = {
+    branch          = "GITHUB_REF";
+    service_number  = NULL;
+    pull_request    = NULL;
+    job_id          = "RUNNER_TRACKING_ID";
+    token           = "COVERALLS_REPO_TOKEN";
+    commit_id       = "GITHUB_SHA";
+    author_name     = NULL;
+    author_email    = NULL;
+    committer_name  = NULL;
+    committer_email = NULL;
+    message         = NULL;
+  };
+
 }
 
 local function is_ci()
-  return ENV.CI and ENV.CI:lower() == "true"
+  local CIVAR = ENV.CI or ENV.GITHUB_ACTIONS
+  return CIVAR and CIVAR:lower() == "true"
 end
 
 local function ci_name()
@@ -111,6 +126,7 @@ local function ci_name()
   if (ENV.APPVEYOR  or ''):lower() == "true"     then return "appveyor"  end
   if (ENV.DRONE     or ''):lower() == "true"     then return "drone"     end
   if (ENV.GITLAB_CI or ''):lower() == "true"     then return "gitlab"    end
+  if (ENV.GITHUB_ACTIONS or ''):lower() == "true" then return "actions"  end
 end
 
 local function cfg()
