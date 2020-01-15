@@ -96,7 +96,7 @@ local CI_CONFIG = {
     message         = "CI_COMMIT_TITLE";
   };
 
-  actions = {
+  github = {
     branch          = "GITHUB_REF";
     service_number  = NULL;
     pull_request    = NULL;
@@ -126,7 +126,7 @@ local function ci_name()
   if (ENV.APPVEYOR  or ''):lower() == "true"     then return "appveyor"  end
   if (ENV.DRONE     or ''):lower() == "true"     then return "drone"     end
   if (ENV.GITLAB_CI or ''):lower() == "true"     then return "gitlab"    end
-  if (ENV.GITHUB_ACTIONS or ''):lower() == "true" then return "actions"  end
+  if (ENV.GITHUB_ACTIONS or ''):lower() == "true" then return "github"  end
 end
 
 local function cfg()
