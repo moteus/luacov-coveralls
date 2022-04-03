@@ -1,8 +1,8 @@
 package = "LuaCov-coveralls"
-version = "scm-0"
+version = "0.2.3-2"
 source = {
    url = "git+https://github.com/moteus/luacov-coveralls",
-   tag = "master"
+   tag = "v0.2.3"
 }
 description = {
    summary = "LuaCov reporter for coveralls.io service",
